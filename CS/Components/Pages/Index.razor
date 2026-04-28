@@ -1,8 +1,158 @@
 ﻿@page "/"
 @using System.Globalization
+@using scheduler_menu.Data
 
 <PageTitle>Welcome</PageTitle>
 
+<style>
+    .dxbl-sc-time-cell {
+        padding: 0 !important;
+    }
+
+    .scheduler-weekday {
+        color: grey;
+    }
+
+    .scheduler-weekend {
+        color: darkred;
+    }
+
+    .scheduler-date {
+        padding-right: 3px;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .test {
+        height: 100%;
+    }
+</style>
+
+<DxCheckBox @bind-Checked="@UseDayViewVerticalAppointmentTemplate">Use Day View Vertical Appointment Template</DxCheckBox>
+
+<DxScheduler StartDate="@DateTime.Today" @bind-ActiveViewType=MyActiveViewType
+             DataStorage="@DataStorage" HtmlCellDecoration=OnHtmlCellDecoration
+             GroupType="SchedulerGroupType.Resource"
+             VisibleResourcesDataSource="VisibleResources"
+             CssClass="w-100">
+    <DxSchedulerDayView DayCount="1" ShowWorkTimeOnly="true">
+        <DateHeaderCellTemplate>
+            <div class="@GetDateCssClass(context.Interval.Start)"
+                @oncontextmenu="((e) => ContextMenu.ShowAsync(e))" @oncontextmenu:preventDefault>
+                <span class="scheduler-date">@context.Interval.Start.Day</span>
+                <span>@context.Interval.Start.ToString("ddd")</span>
+            </div>
+        </DateHeaderCellTemplate>
+        <HorizontalAppointmentTemplate>
+            <div>
+                <div class="dx-scheduler-appointment-content">
+                    <div>my text</div>
+                    <div class="dx-scheduler-appointment-title">@context.Appointment.Description</div>
+                </div>
+            </div>
+        </HorizontalAppointmentTemplate>
+        <VerticalAppointmentTemplate>
+            <div class="card @context.Label?.BackgroundCssClass" style="height: 100%; padding: 0.2em 0.5em; opacity: 0.9;"
+                @oncontextmenu="((e) => ContextMenu.ShowAsync(e))" @oncontextmenu:preventDefault>
+                <p>
+                    @context.Appointment.Subject
+                </p>
+                <p>
+                    @context.Appointment?.Start.ToString("t", CultureInfo.InvariantCulture) - @context.Appointment?.End.ToString("t", CultureInfo.InvariantCulture)
+                </p>
+            </div>
+        </VerticalAppointmentTemplate>
+        <TimeCellTemplate>
+            <div class="test" @oncontextmenu="((e) => ContextMenu.ShowAsync(e))" @oncontextmenu:preventDefault>&nbsp;</div>
+        </TimeCellTemplate>
+    </DxSchedulerDayView>
+    <DxSchedulerWeekView ShowWorkTimeOnly="true">
+        <TimeCellTemplate>
+            <div class="test" @oncontextmenu="((e) => ContextMenu.ShowAsync(e))" @oncontextmenu:preventDefault>&nbsp;</div>
+        </TimeCellTemplate>
+    </DxSchedulerWeekView>
+    <DxSchedulerWorkWeekView ShowWorkTimeOnly="true">
+        <TimeCellTemplate>
+            <div class="test" @oncontextmenu="((e) => ContextMenu.ShowAsync(e))" @oncontextmenu:preventDefault>&nbsp;</div>
+        </TimeCellTemplate>
+    </DxSchedulerWorkWeekView>
+    <DxSchedulerMonthView ShowWorkDaysOnly="true" MonthCount="1">
+        <TimeCellTemplate>
+            <div class="test-month" @oncontextmenu="((e) => ContextMenu.ShowAsync(e))" @oncontextmenu:preventDefault>&nbsp;</div>
+            <div class="dxsc-date-cell-head">&nbsp;</div>
+        </TimeCellTemplate>
+    </DxSchedulerMonthView>
+    <DxSchedulerTimelineView Duration="@TimeSpan.FromHours(48)" CellMinWidth="80">
+        <TimeCellTemplate>
+            <div class="test" @oncontextmenu="((e) => ContextMenu.ShowAsync(e))" @oncontextmenu:preventDefault>&nbsp;</div>
+        </TimeCellTemplate>
+        <Scales>
+            <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Day" UnitCount="1"></DxSchedulerTimeScale>
+            <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="2"></DxSchedulerTimeScale>
+        </Scales>
+    </DxSchedulerTimelineView>
+</DxScheduler>
+<DxContextMenu @ref="@ContextMenu" ItemClick="@OnItemClick">
+    <Items>
+        <DxContextMenuItem Text="Copy"></DxContextMenuItem>
+        <DxContextMenuItem Text="Cut"></DxContextMenuItem>
+        <DxContextMenuItem Text="Remove"></DxContextMenuItem>
+    </Items>
+</DxContextMenu>
+
+
 @code {
-    
+    bool UseDayViewVerticalAppointmentTemplate { get; set; }
+    SchedulerViewType MyActiveViewType = SchedulerViewType.Day;
+    void OnHtmlCellDecoration(SchedulerHtmlCellDecorationEventArgs args) {
+        if (args.CellType == SchedulerCellType.TimeCell) {
+            args.CssClass += "my-cell";
+            if (MyActiveViewType != SchedulerViewType.Timeline && MyActiveViewType != SchedulerViewType.Month) {
+                args.CssClass += " my-height-hack";
+            }
+        }
+    }
+    DxContextMenu ContextMenu { get; set; }
+    void OnItemClick(ContextMenuItemClickEventArgs args) {
+
+    }
+
+    string GetDateCssClass(DateTime date)
+    {
+        if(date.DayOfWeek == DayOfWeek.Sunday
+            || date.DayOfWeek == DayOfWeek.Saturday) return "scheduler-weekend";
+        else return "scheduler-weekday";
+    }
+
+    DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage() {
+            AppointmentsSource = RecurringAppointmentCollection.GetAppointments(),
+            AppointmentMappings = new DxSchedulerAppointmentMappings() {
+                Id = "AppointmentID",
+                Type = "AppointmentType",
+                Start = "StartDate",
+                End = "EndDate",
+                Subject = "Caption",
+                AllDay = "AllDay",
+                Location = "Location",
+                Description = "Description",
+                LabelId = "Label",
+                StatusId = "Status",
+                RecurrenceInfo = "Recurrence",
+                ResourceId = "ResourceId"
+            },
+            ResourcesSource = ResourceCollection.GetResourcesForGrouping(),
+            ResourceMappings = new DxSchedulerResourceMappings() {
+                Id = "Id",
+                Caption = "Name",
+                BackgroundCssClass = "BackgroundCss",
+                TextCssClass = "TextCss"
+            }
+        };
+    List<Resource> VisibleResources = ResourceCollection.GetResources().Take(2).ToList();
+
+
+
+
+
+
 }
