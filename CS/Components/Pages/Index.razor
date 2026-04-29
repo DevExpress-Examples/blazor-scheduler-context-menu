@@ -56,16 +56,18 @@
     string _clickedRegion = string.Empty;
 
     [JSInvokable]
-    public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region)
+    public async ValueTask ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region)
     {
         _clickedRegion = region;
-        await ContextMenu.ShowAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs
+        // Force a re-render so the context menu label reflects the new region before the menu opens.
+        StateHasChanged();
+        await (ContextMenu?.ShowAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs
         {
             ClientX = clientX,
             ClientY = clientY,
             PageX = pageX,
             PageY = pageY
-        });
+        }) ?? Task.FromResult(false));
     }
 
     public async ValueTask DisposeAsync()
@@ -77,7 +79,7 @@
 
     SchedulerViewType MyActiveViewType = SchedulerViewType.Day;
  
-    DxContextMenu ContextMenu { get; set; }
+    DxContextMenu? ContextMenu { get; set; }
 
     void OnItemClick(ContextMenuItemClickEventArgs args) {
 
