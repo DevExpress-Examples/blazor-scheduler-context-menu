@@ -30,10 +30,44 @@
 </div>
 <DxContextMenu @ref="@ContextMenu" ItemClick="@OnItemClick">
     <Items>
-        <DxContextMenuItem Text="@_clickedRegion" Enabled="false"></DxContextMenuItem>
-        <DxContextMenuItem Text="Copy"></DxContextMenuItem>
-        <DxContextMenuItem Text="Cut"></DxContextMenuItem>
-        <DxContextMenuItem Text="Remove"></DxContextMenuItem>
+        <DxContextMenuItem Text="@_clickedRegion" Enabled="false" CssClass="fw-bold"></DxContextMenuItem>
+        @switch (_clickedRegion)
+        {
+            case "Appointment":
+                <DxContextMenuItem Text="Edit" Name="Edit"></DxContextMenuItem>
+                <DxContextMenuItem Text="Copy" Name="Copy"></DxContextMenuItem>
+                <DxContextMenuItem Text="Cut" Name="Cut"></DxContextMenuItem>
+                <DxContextMenuItem Text="Remove" Name="Remove"></DxContextMenuItem>
+                break;
+            case "All Day Area":
+                <DxContextMenuItem Text="Clear all appointments for the day" Name="ClearAllDay"></DxContextMenuItem>
+                <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
+                break;
+            case "Time Cell":
+                <DxContextMenuItem Text="Create Appointment" Name="CreateAppointment"></DxContextMenuItem>
+                <DxContextMenuItem Text="Paste" Name="Paste"></DxContextMenuItem>
+                <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
+                break;
+            case "Date Header":
+                <DxContextMenuItem Text="Go to Date" Name="GoToDate"></DxContextMenuItem>
+                <DxContextMenuItem Text="Switch to Day View" Name="SwitchToDayView"></DxContextMenuItem>
+                <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
+                break;
+            case "Resource Header":
+                <DxContextMenuItem Text="Hide Resource" Name="HideResource"></DxContextMenuItem>
+                <DxContextMenuItem Text="Show All Resources" Name="ShowAllResources"></DxContextMenuItem>
+                break;
+            case "Time Ruler":
+                <DxContextMenuItem Text="Switch Time Format" Name="SwitchTimeFormat"></DxContextMenuItem>
+                <DxContextMenuItem Text="Toggle Work Time Only" Name="ToggleWorkTime"></DxContextMenuItem>
+                break;
+            case "Toolbar":
+                <DxContextMenuItem Text="Switch to Day View" Name="SwitchToDayView"></DxContextMenuItem>
+                <DxContextMenuItem Text="Switch to Week View" Name="SwitchToWeekView"></DxContextMenuItem>
+                <DxContextMenuItem Text="Switch to Month View" Name="SwitchToMonthView"></DxContextMenuItem>
+                <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
+                break;
+        }
     </Items>
 </DxContextMenu>
 

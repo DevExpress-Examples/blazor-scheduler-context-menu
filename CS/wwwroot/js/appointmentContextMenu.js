@@ -12,8 +12,8 @@ function getRegion(target, schedulerElement) {
             if (!cls.startsWith('dxbl-sc-') && !cls.startsWith('dxbl-v-')) continue;
             if (cls.includes('date-hr') || cls.includes('date-header') || cls.includes('date-cell'))
                                                                                                       return 'Date Header';
-            if (cls.includes('resource-hr') || cls.includes('v-resource-header'))                    return 'Resource Header';
-            if (cls.includes('time-ruler') || cls.includes('time-scale'))                            return 'Time Ruler';
+            if (cls.includes('resource-hr') || cls.includes('v-resource-header'))                     return 'Resource Header';
+            if (cls.includes('time-ruler') || cls.includes('time-scale'))                             return 'Time Ruler';
             if (cls.includes('toolbar') || cls.includes('navigator') || cls.includes('header-panel')) return 'Toolbar';
             if (cls.includes('all-day-area'))                                                         return 'All Day Area';
         }
