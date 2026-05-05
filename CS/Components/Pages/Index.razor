@@ -6,11 +6,14 @@
 
 <PageTitle>Welcome</PageTitle>
 
+Selected appointment: @SelectedAppointment?.Subject
+
 <div @ref="SchedulerContainer">
 <DxScheduler @ref="Scheduler" @bind-StartDate="StartDate" @bind-ActiveViewType=MyActiveViewType
              @bind-SelectedAppointment="SelectedAppointment"
              DataStorage="@DataStorage"
              GroupType="SchedulerGroupType.Resource"
+             HtmlCellDecoration="OnHtmlCellDecoration"
              VisibleResourcesDataSource="VisibleResources"
              CssClass="w-100">
     <DxSchedulerDayView DayCount="1" ShowWorkTimeOnly="@ShowWorkTimeOnly">
@@ -48,6 +51,9 @@
                 @if (MyActiveViewType != SchedulerViewType.Day) {
                     <DxContextMenuItem Text="Switch to Day View" Name="SwitchToDayView"></DxContextMenuItem>
                 }
+                <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
+                break;
+            case "Day of Week Header":
                 <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
                 break;
             case "Resource Header":
@@ -196,4 +202,28 @@
             }
         };
     List<Resource> VisibleResources = ResourceCollection.GetResources().Take(2).ToList();
+    private void OnHtmlCellDecoration(SchedulerHtmlCellDecorationEventArgs e)
+    {
+        switch(e.CellType)
+        {
+            case SchedulerCellType.DateHeader:
+                e.CssClass = "custom-date-header";
+                break;
+            case SchedulerCellType.TimeCell:
+                e.CssClass = "custom-time-cell";
+                break;
+            case SchedulerCellType.ResourceHeader:
+                e.CssClass = "custom-resource-header";
+                break;
+            case SchedulerCellType.AllDayTimeCell:
+                e.CssClass = "custom-all-date-time-cell";
+                break;
+            case SchedulerCellType.DayOfWeekHeader:
+                e.CssClass = "custom-day-of-week-header";
+                break;
+            case SchedulerCellType.None:
+                e.CssClass = "custom-none";
+                break;
+        }
+    }
 }
