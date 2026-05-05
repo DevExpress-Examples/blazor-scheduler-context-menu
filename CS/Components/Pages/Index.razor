@@ -7,16 +7,17 @@
 <PageTitle>Welcome</PageTitle>
 
 <div @ref="SchedulerContainer">
-<DxScheduler StartDate="@DateTime.Today" @bind-ActiveViewType=MyActiveViewType
+<DxScheduler @ref="Scheduler" @bind-StartDate="StartDate" @bind-ActiveViewType=MyActiveViewType
+             @bind-SelectedAppointment="SelectedAppointment"
              DataStorage="@DataStorage"
              GroupType="SchedulerGroupType.Resource"
              VisibleResourcesDataSource="VisibleResources"
              CssClass="w-100">
-    <DxSchedulerDayView DayCount="1" ShowWorkTimeOnly="true">
+    <DxSchedulerDayView DayCount="1" ShowWorkTimeOnly="@ShowWorkTimeOnly">
     </DxSchedulerDayView>
-    <DxSchedulerWeekView ShowWorkTimeOnly="true">
+    <DxSchedulerWeekView ShowWorkTimeOnly="@ShowWorkTimeOnly">
     </DxSchedulerWeekView>
-    <DxSchedulerWorkWeekView ShowWorkTimeOnly="true">
+    <DxSchedulerWorkWeekView ShowWorkTimeOnly="@ShowWorkTimeOnly">
     </DxSchedulerWorkWeekView>
     <DxSchedulerMonthView ShowWorkDaysOnly="true" MonthCount="1">
     </DxSchedulerMonthView>
@@ -35,36 +36,42 @@
         {
             case "Appointment":
                 <DxContextMenuItem Text="Edit" Name="Edit"></DxContextMenuItem>
-                <DxContextMenuItem Text="Copy" Name="Copy"></DxContextMenuItem>
-                <DxContextMenuItem Text="Cut" Name="Cut"></DxContextMenuItem>
-                <DxContextMenuItem Text="Remove" Name="Remove"></DxContextMenuItem>
                 break;
             case "All Day Area":
                 <DxContextMenuItem Text="Clear all appointments for the day" Name="ClearAllDay"></DxContextMenuItem>
                 <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
                 break;
             case "Time Cell":
-                <DxContextMenuItem Text="Create Appointment" Name="CreateAppointment"></DxContextMenuItem>
-                <DxContextMenuItem Text="Paste" Name="Paste"></DxContextMenuItem>
                 <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
                 break;
             case "Date Header":
-                <DxContextMenuItem Text="Go to Date" Name="GoToDate"></DxContextMenuItem>
-                <DxContextMenuItem Text="Switch to Day View" Name="SwitchToDayView"></DxContextMenuItem>
+                @if (MyActiveViewType != SchedulerViewType.Day) {
+                    <DxContextMenuItem Text="Switch to Day View" Name="SwitchToDayView"></DxContextMenuItem>
+                }
                 <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
                 break;
             case "Resource Header":
-                <DxContextMenuItem Text="Hide Resource" Name="HideResource"></DxContextMenuItem>
+                @if (SelectedAppointment is not null && VisibleResources.Count > 1) {
+                    <DxContextMenuItem Text="Hide Resource of the selected Appointment" Name="HideResource"></DxContextMenuItem>
+                }
                 <DxContextMenuItem Text="Show All Resources" Name="ShowAllResources"></DxContextMenuItem>
                 break;
             case "Time Ruler":
-                <DxContextMenuItem Text="Switch Time Format" Name="SwitchTimeFormat"></DxContextMenuItem>
                 <DxContextMenuItem Text="Toggle Work Time Only" Name="ToggleWorkTime"></DxContextMenuItem>
                 break;
             case "Toolbar":
-                <DxContextMenuItem Text="Switch to Day View" Name="SwitchToDayView"></DxContextMenuItem>
-                <DxContextMenuItem Text="Switch to Week View" Name="SwitchToWeekView"></DxContextMenuItem>
-                <DxContextMenuItem Text="Switch to Month View" Name="SwitchToMonthView"></DxContextMenuItem>
+                @if (MyActiveViewType != SchedulerViewType.Day) {
+                    <DxContextMenuItem Text="Switch to Day View" Name="SwitchToDayView"></DxContextMenuItem>
+                }
+                @if (MyActiveViewType != SchedulerViewType.Week) {
+                    <DxContextMenuItem Text="Switch to Week View" Name="SwitchToWeekView"></DxContextMenuItem>
+                }
+                @if (MyActiveViewType != SchedulerViewType.WorkWeek) {
+                    <DxContextMenuItem Text="Switch to Work Week View" Name="SwitchToWorkWeekView"></DxContextMenuItem>
+                }
+                @if (MyActiveViewType != SchedulerViewType.Month) {
+                    <DxContextMenuItem Text="Switch to Month View" Name="SwitchToMonthView"></DxContextMenuItem>
+                }
                 <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
                 break;
         }
@@ -76,11 +83,15 @@
     ElementReference SchedulerContainer;
     DotNetObjectReference<Index>? DotNetRef;
     IJSObjectReference? JsModule;
+    DxScheduler? Scheduler;
+    DateTime StartDate = DateTime.Today;
+    DxSchedulerAppointmentItem? SelectedAppointment;
+    bool ShowWorkTimeOnly = true;
+    SchedulerViewType MyActiveViewType = SchedulerViewType.Day;
+    DxContextMenu? ContextMenu { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (firstRender) {
             DotNetRef = DotNetObjectReference.Create(this);
             JsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/appointmentContextMenu.js");
             await JsModule.InvokeVoidAsync("setup", SchedulerContainer, DotNetRef);
@@ -90,8 +101,7 @@
     string _clickedRegion = string.Empty;
 
     [JSInvokable]
-    public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region)
-    {
+    public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region) {
         _clickedRegion = region;
         // Force a re-render to ensure that the context menu label reflects the new region before the menu opens.
         StateHasChanged();
@@ -104,19 +114,61 @@
         }) ?? Task.FromResult(false));
     }
 
-    public async ValueTask DisposeAsync()
-    {
+    public async ValueTask DisposeAsync() {
         if (JsModule is not null)
             await JsModule.DisposeAsync();
         DotNetRef?.Dispose();
     }
 
-    SchedulerViewType MyActiveViewType = SchedulerViewType.Day;
- 
-    DxContextMenu? ContextMenu { get; set; }
 
-    void OnItemClick(ContextMenuItemClickEventArgs args) {
-
+    async void OnItemClick(ContextMenuItemClickEventArgs args) {
+        switch (args.ItemInfo.Name)
+        {
+            case "Edit":
+                if (Scheduler is not null && SelectedAppointment is not null)
+                    await Scheduler.ShowAppointmentEditFormAsync(false, SelectedAppointment);
+                break;
+            case "ClearAllDay":
+                if (Scheduler is not null) {
+                    var range = new DxSchedulerDateTimeRange(StartDate.Date, StartDate.Date.AddDays(1));
+                    var appointments = DataStorage.GetAppointments(range).ToList();
+                    foreach (var apt in appointments) {
+                        await Scheduler.DeleteAppointmentAsync(apt);
+                        await Task.Delay(100); // Ensure the scheduler has time to process the deletions before refreshing the view
+                    }
+                }
+                break;
+            case "GoToToday":
+                StartDate = DateTime.Today;
+                break;
+            case "SwitchToDayView":
+                MyActiveViewType = SchedulerViewType.Day;
+                break;
+            case "SwitchToWeekView":
+                MyActiveViewType = SchedulerViewType.Week;
+                break;
+            case "SwitchToWorkWeekView":
+                MyActiveViewType = SchedulerViewType.WorkWeek;
+                break;
+            case "SwitchToMonthView":
+                MyActiveViewType = SchedulerViewType.Month;
+                break;
+            case "HideResource":
+                if (SelectedAppointment is not null) {
+                    var resourceId = SelectedAppointment.ResourceId;
+                    var resourceToHide = VisibleResources.FirstOrDefault(r => r.Id.Equals(resourceId));
+                    if (resourceToHide is not null && VisibleResources.Count > 1)
+                        VisibleResources = VisibleResources.Where(r => !r.Equals(resourceToHide)).ToList();
+                }
+                break;
+            case "ShowAllResources":
+                VisibleResources = ResourceCollection.GetResourcesForGrouping();
+                break;
+            case "ToggleWorkTime":
+                ShowWorkTimeOnly = !ShowWorkTimeOnly;
+                break;
+        }
+        StateHasChanged();
     }
 
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage() {
@@ -144,10 +196,4 @@
             }
         };
     List<Resource> VisibleResources = ResourceCollection.GetResources().Take(2).ToList();
-
-
-
-
-
-
 }
