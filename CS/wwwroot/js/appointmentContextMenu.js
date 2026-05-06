@@ -4,25 +4,32 @@
 
 function getRegion(target, schedulerElement) {
     console.log('Context menu target:', target);
+
     if (target.closest('.dxbl-sc-apt'))
-        return 'Appointment';
+        return { name: 'Appointment', id: 42 };
+
     if (target.closest('.custom-time-cell'))
-        return 'Time Cell';
+        return { name: 'Time Cell', id: 42 };
     if (target.closest('.custom-date-header'))
-        return 'Date Header';
-    if (target.closest('.custom-resource-header'))
-        return 'Resource Header';
+        return { name: 'Date Header', id: 42 };
     if (target.closest('.custom-all-date-time-cell'))
-        return 'All Day Area';
+        return { name: 'All Day Area', id: 42 };
     if (target.closest('.custom-day-of-week-header'))
-        return 'Day of Week Header';
+        return { name: 'Day of Week Header', id: 42 };
+
+    const resourceHeader = target.closest('[class*="custom-resource-header-"]');
+    if (resourceHeader) {
+        const cls = [...resourceHeader.classList].find(c => c.startsWith('custom-resource-header-'));
+        const id = parseInt(cls.replace('custom-resource-header-', ''), 10);
+        return { name: 'Resource Header', id };
+    }
 
     let el = target;
     while (el && el !== schedulerElement) {
         for (const cls of (el.classList ?? [])) {
             if (!cls.startsWith('dxbl-sc-') && !cls.startsWith('dxbl-v-')) continue;
-            if (cls.includes('time-ruler') || cls.includes('time-scale'))                             return 'Time Ruler';
-            if (cls.includes('toolbar') || cls.includes('navigator') || cls.includes('header-panel')) return 'Toolbar';
+            if (cls.includes('time-ruler') || cls.includes('time-scale'))                             return { name: 'Time Ruler', id: 42 };
+            if (cls.includes('toolbar') || cls.includes('navigator') || cls.includes('header-panel')) return { name: 'Toolbar', id: 42 };
         }
         el = el.parentElement;
     }
@@ -35,7 +42,7 @@ export function setup(schedulerElement, dotNetRef) {
         const region = getRegion(e.target, schedulerElement);
         console.log('Context menu region:', region);
         if (!region) return;
-        dotNetRef.invokeMethodAsync('ShowAppointmentContextMenu', e.clientX, e.clientY, e.pageX, e.pageY, region)
+        dotNetRef.invokeMethodAsync('ShowAppointmentContextMenu', e.clientX, e.clientY, e.pageX, e.pageY, region.name, region.id)
             .catch(err => console.error('[appointmentContextMenu] Failed to invoke .NET method:', err));
     });
 }

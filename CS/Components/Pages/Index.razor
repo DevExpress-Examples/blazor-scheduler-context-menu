@@ -14,7 +14,7 @@ Selected appointment: @SelectedAppointment?.Subject
              DataStorage="@DataStorage"
              GroupType="SchedulerGroupType.Resource"
              HtmlCellDecoration="OnHtmlCellDecoration"
-             VisibleResourcesDataSource="VisibleResources"
+             VisibleResourcesDataSource="@VisibleResources"
              CssClass="w-100">
     <DxSchedulerDayView DayCount="1" ShowWorkTimeOnly="@ShowWorkTimeOnly">
     </DxSchedulerDayView>
@@ -57,8 +57,8 @@ Selected appointment: @SelectedAppointment?.Subject
                 <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
                 break;
             case "Resource Header":
-                @if (SelectedAppointment is not null && VisibleResources.Count > 1) {
-                    <DxContextMenuItem Text="Hide Resource of the selected Appointment" Name="HideResource"></DxContextMenuItem>
+                @if (VisibleResources.Count() > 1) {
+                    <DxContextMenuItem Text="Hide Resource" Name="HideResource"></DxContextMenuItem>
                 }
                 <DxContextMenuItem Text="Show All Resources" Name="ShowAllResources"></DxContextMenuItem>
                 break;
@@ -105,10 +105,12 @@ Selected appointment: @SelectedAppointment?.Subject
     }
 
     string _clickedRegion = string.Empty;
+    int _clickedId; // stores Id of an element to which we called context menu
 
     [JSInvokable]
-    public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region) {
+    public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region, int id) {
         _clickedRegion = region;
+        _clickedId = id;
         // Force a re-render to ensure that the context menu label reflects the new region before the menu opens.
         StateHasChanged();
         await (ContextMenu?.ShowAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs
@@ -159,13 +161,11 @@ Selected appointment: @SelectedAppointment?.Subject
             case "SwitchToMonthView":
                 MyActiveViewType = SchedulerViewType.Month;
                 break;
-            case "HideResource":
-                if (SelectedAppointment is not null) {
-                    var resourceId = SelectedAppointment.ResourceId;
-                    var resourceToHide = VisibleResources.FirstOrDefault(r => r.Id.Equals(resourceId));
-                    if (resourceToHide is not null && VisibleResources.Count > 1)
-                        VisibleResources = VisibleResources.Where(r => !r.Equals(resourceToHide)).ToList();
-                }
+            case "HideResource":                
+                var resourceId = _clickedId;
+                var resourceToHide = VisibleResources.FirstOrDefault(r => r.Id.Equals(resourceId));
+                if (resourceToHide is not null)
+                    VisibleResources = VisibleResources.Where(r => !r.Equals(resourceToHide)).ToList();                
                 break;
             case "ShowAllResources":
                 VisibleResources = ResourceCollection.GetResourcesForGrouping();
@@ -213,7 +213,7 @@ Selected appointment: @SelectedAppointment?.Subject
                 e.CssClass = "custom-time-cell";
                 break;
             case SchedulerCellType.ResourceHeader:
-                e.CssClass = "custom-resource-header";
+                e.CssClass = "custom-resource-header-" + e.Resources.FirstOrDefault()?.Id;
                 break;
             case SchedulerCellType.AllDayTimeCell:
                 e.CssClass = "custom-all-date-time-cell";
