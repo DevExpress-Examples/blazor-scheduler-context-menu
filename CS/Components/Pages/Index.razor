@@ -6,7 +6,11 @@
 
 <PageTitle>Welcome</PageTitle>
 
-Selected appointment: @SelectedAppointment?.Subject
+Selected appointment: @(SelectedAppointment is null ? "null" : SelectedAppointment.Subject) <br />
+Visible Resources count: @VisibleResourcesTyped.Count()<br />
+@foreach(var resource in VisibleResourcesTyped) {
+    @resource.Name <br />
+}
 
 <div @ref="SchedulerContainer">
 <DxScheduler @ref="Scheduler" @bind-StartDate="StartDate" @bind-ActiveViewType=MyActiveViewType
@@ -14,7 +18,7 @@ Selected appointment: @SelectedAppointment?.Subject
              DataStorage="@DataStorage"
              GroupType="SchedulerGroupType.Resource"
              HtmlCellDecoration="OnHtmlCellDecoration"
-             VisibleResourcesDataSource="@VisibleResources"
+             @bind-VisibleResourcesDataSource="@VisibleResources"
              CssClass="w-100">
     <DxSchedulerDayView DayCount="1" ShowWorkTimeOnly="@ShowWorkTimeOnly">
     </DxSchedulerDayView>
@@ -57,7 +61,7 @@ Selected appointment: @SelectedAppointment?.Subject
                 <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
                 break;
             case "Resource Header":
-                @if (VisibleResources.Count() > 1) {
+                @if (VisibleResourcesTyped.Count() > 1) {
                     <DxContextMenuItem Text="Hide Resource" Name="HideResource"></DxContextMenuItem>
                 }
                 <DxContextMenuItem Text="Show All Resources" Name="ShowAllResources"></DxContextMenuItem>
@@ -95,6 +99,8 @@ Selected appointment: @SelectedAppointment?.Subject
     bool ShowWorkTimeOnly = true;
     SchedulerViewType MyActiveViewType = SchedulerViewType.Day;
     DxContextMenu? ContextMenu { get; set; }
+    System.Collections.IEnumerable VisibleResources = ResourceCollection.GetResources().Take(2).ToList();
+    IEnumerable<Resource> VisibleResourcesTyped => VisibleResources.Cast<Resource>();
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         if (firstRender) {
@@ -163,9 +169,9 @@ Selected appointment: @SelectedAppointment?.Subject
                 break;
             case "HideResource":                
                 var resourceId = _clickedId;
-                var resourceToHide = VisibleResources.FirstOrDefault(r => r.Id.Equals(resourceId));
+                var resourceToHide = VisibleResourcesTyped.FirstOrDefault(r => r.Id.Equals(resourceId));
                 if (resourceToHide is not null)
-                    VisibleResources = VisibleResources.Where(r => !r.Equals(resourceToHide)).ToList();                
+                    VisibleResources = VisibleResourcesTyped.Where(r => !r.Equals(resourceToHide)).ToList();
                 break;
             case "ShowAllResources":
                 VisibleResources = ResourceCollection.GetResourcesForGrouping();
@@ -201,7 +207,6 @@ Selected appointment: @SelectedAppointment?.Subject
                 TextCssClass = "TextCss"
             }
         };
-    List<Resource> VisibleResources = ResourceCollection.GetResources().Take(2).ToList();
     private void OnHtmlCellDecoration(SchedulerHtmlCellDecorationEventArgs e)
     {
         switch(e.CellType)
