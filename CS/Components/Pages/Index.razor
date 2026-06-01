@@ -39,26 +39,51 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
 <DxContextMenu @ref="@ContextMenu" ItemClick="@OnItemClick">
     <Items>
         <DxContextMenuItem Text="@_clickedRegion" Enabled="false" CssClass="fw-bold"></DxContextMenuItem>
+        @{
+            string GoToTodayText = "Error: Unknown view type";
+            switch(MyActiveViewType)
+            {
+                case SchedulerViewType.Day:
+                    GoToTodayText = "Go to Today";
+                    break;
+                case SchedulerViewType.Week:
+                case SchedulerViewType.WorkWeek:
+                    GoToTodayText = "Go to the current Week";
+                    break;
+                case SchedulerViewType.Month:
+                    GoToTodayText = "Go to the current Month";
+                    break;
+                case SchedulerViewType.Timeline:
+                    GoToTodayText = "Go to Today";
+                    break;
+            }
+            string OpenDayInDayView = "Open this day in Day View";
+        }
         @switch (_clickedRegion)
         {
             case "Appointment":
                 <DxContextMenuItem Text="Edit" Name="Edit"></DxContextMenuItem>
                 break;
             case "All Day Area":
-                <DxContextMenuItem Text="Clear all appointments for the day" Name="ClearAllDay"></DxContextMenuItem>
-                <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
+                @if (MyActiveViewType != SchedulerViewType.Day) {
+                    <DxContextMenuItem Text="@OpenDayInDayView" Name="SwitchToDayView"></DxContextMenuItem>
+                }
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday"></DxContextMenuItem>
                 break;
             case "Time Cell":
-                <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday"></DxContextMenuItem>
+                @if (MyActiveViewType != SchedulerViewType.Day) {
+                    <DxContextMenuItem Text="@OpenDayInDayView" Name="SwitchToDayView"></DxContextMenuItem>
+                }
                 break;
             case "Date Header":
                 @if (MyActiveViewType != SchedulerViewType.Day) {
-                    <DxContextMenuItem Text="Switch to Day View" Name="SwitchToDayView"></DxContextMenuItem>
+                    <DxContextMenuItem Text="@OpenDayInDayView" Name="SwitchToDayView"></DxContextMenuItem>
                 }
-                <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday"></DxContextMenuItem>
                 break;
             case "Day of Week Header":
-                <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday"></DxContextMenuItem>
                 break;
             case "Resource Header":
                 @if (VisibleResourcesTyped.Count() > 1) {
@@ -82,7 +107,7 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
                 @if (MyActiveViewType != SchedulerViewType.Month) {
                     <DxContextMenuItem Text="Switch to Month View" Name="SwitchToMonthView"></DxContextMenuItem>
                 }
-                <DxContextMenuItem Text="Go to Today" Name="GoToToday"></DxContextMenuItem>
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday"></DxContextMenuItem>
                 break;
         }
     </Items>
@@ -111,12 +136,14 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
     }
 
     string _clickedRegion = string.Empty;
-    int _clickedId; // stores Id of an element to which we called context menu
+    int? _clickedId; // stores Id of an element to which we called context menu
+    DateTime? _dayToGo; // Stores day where we should switch to
 
     [JSInvokable]
-    public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region, int id) {
+    public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region, int? id, long? startDate) {
         _clickedRegion = region;
         _clickedId = id;
+        _dayToGo = startDate.HasValue ? DateTimeOffset.FromUnixTimeMilliseconds(startDate.Value).DateTime : (DateTime?)null;
         // Force a re-render to ensure that the context menu label reflects the new region before the menu opens.
         StateHasChanged();
         await (ContextMenu?.ShowAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs
@@ -142,21 +169,13 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
                 if (Scheduler is not null && SelectedAppointment is not null)
                     await Scheduler.ShowAppointmentEditFormAsync(false, SelectedAppointment);
                 break;
-            case "ClearAllDay":
-                if (Scheduler is not null) {
-                    var range = new DxSchedulerDateTimeRange(StartDate.Date, StartDate.Date.AddDays(1));
-                    var appointments = DataStorage.GetAppointments(range).ToList();
-                    foreach (var apt in appointments) {
-                        await Scheduler.DeleteAppointmentAsync(apt);
-                        await Task.Delay(100); // Ensure the scheduler has time to process the deletions before refreshing the view
-                    }
-                }
-                break;
             case "GoToToday":
                 StartDate = DateTime.Today;
                 break;
             case "SwitchToDayView":
                 MyActiveViewType = SchedulerViewType.Day;
+                if (_dayToGo is not null)
+                    StartDate = _dayToGo.Value;
                 break;
             case "SwitchToWeekView":
                 MyActiveViewType = SchedulerViewType.Week;
