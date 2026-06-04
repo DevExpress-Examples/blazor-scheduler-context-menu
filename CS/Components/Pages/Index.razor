@@ -27,6 +27,13 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
     <DxSchedulerWorkWeekView ShowWorkTimeOnly="@ShowWorkTimeOnly">
     </DxSchedulerWorkWeekView>
     <DxSchedulerMonthView ShowWorkDaysOnly="true" MonthCount="1">
+        <HorizontalAppointmentTemplate>
+            <div class="card @context.Label?.BackgroundCssClass" >
+                <div data-appointment-id="@GetAppointmentId(context.Appointment)">
+                    @context.Appointment.Subject
+                </div>
+            </div>
+        </HorizontalAppointmentTemplate>
     </DxSchedulerMonthView>
     <DxSchedulerTimelineView Duration="@TimeSpan.FromHours(48)" CellMinWidth="80">
         <Scales>
@@ -122,7 +129,7 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
     DateTime StartDate = DateTime.Today;
     DxSchedulerAppointmentItem? SelectedAppointment;
     bool ShowWorkTimeOnly = true;
-    SchedulerViewType MyActiveViewType = SchedulerViewType.Day;
+    SchedulerViewType MyActiveViewType = SchedulerViewType.Month;
     DxContextMenu? ContextMenu { get; set; }
     System.Collections.IEnumerable VisibleResources = ResourceCollection.GetResources().Take(2).ToList();
     IEnumerable<Resource> VisibleResourcesTyped => VisibleResources.Cast<Resource>();
@@ -138,6 +145,12 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
     string _clickedRegion = string.Empty;
     int? _clickedId; // stores Id of an element to which we called context menu
     DateTime? _dayToGo; // Stores day where we should switch to
+
+
+    string? GetAppointmentId(DxSchedulerAppointmentItem apt) {
+        var source = apt.SourceObject ?? DataStorage.GetPattern(apt)?.SourceObject;
+        return (source as Appointment)?.AppointmentID.ToString();
+    }
 
     [JSInvokable]
     public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region, int? id, long? startDate) {
