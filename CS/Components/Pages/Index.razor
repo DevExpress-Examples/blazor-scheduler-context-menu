@@ -6,7 +6,7 @@
 
 <PageTitle>Welcome</PageTitle>
 
-Selected appointment: @(SelectedAppointment is null ? "null" : SelectedAppointment.Subject) <br />
+Context Menu appointment: @(ContextMenuAppointment is null ? "null" : ContextMenuAppointment.Subject)<br />
 Visible Resources count: @VisibleResourcesTyped.Count()<br />
 @foreach(var resource in VisibleResourcesTyped) {
     @resource.Name <br />
@@ -14,7 +14,6 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
 
 <div @ref="SchedulerContainer">
 <DxScheduler @ref="Scheduler" @bind-StartDate="StartDate" @bind-ActiveViewType=MyActiveViewType
-             @bind-SelectedAppointment="SelectedAppointment"
              DataStorage="@DataStorage"
              GroupType="SchedulerGroupType.Resource"
              HtmlCellDecoration="OnHtmlCellDecoration"
@@ -26,15 +25,17 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
     </DxSchedulerWeekView>
     <DxSchedulerWorkWeekView ShowWorkTimeOnly="@ShowWorkTimeOnly">
     </DxSchedulerWorkWeekView>
+
     <DxSchedulerMonthView ShowWorkDaysOnly="true" MonthCount="1">
         <HorizontalAppointmentTemplate>
             <div class="card @context.Label?.BackgroundCssClass" >
-                <div data-appointment-id="@GetAppointmentId(context.Appointment)">
+                <div @oncontextmenu="((e) => ShowAppointmentContextMenu2(e, context.Appointment))">
                     @context.Appointment.Subject
                 </div>
             </div>
         </HorizontalAppointmentTemplate>
     </DxSchedulerMonthView>
+
     <DxSchedulerTimelineView Duration="@TimeSpan.FromHours(48)" CellMinWidth="80">
         <Scales>
             <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Day" UnitCount="1"></DxSchedulerTimeScale>
@@ -122,12 +123,12 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
 
 
 @code {
+    DxSchedulerAppointmentItem ContextMenuAppointment { get; set; }
     ElementReference SchedulerContainer;
     DotNetObjectReference<Index>? DotNetRef;
     IJSObjectReference? JsModule;
     DxScheduler? Scheduler;
     DateTime StartDate = DateTime.Today;
-    DxSchedulerAppointmentItem? SelectedAppointment;
     bool ShowWorkTimeOnly = true;
     SchedulerViewType MyActiveViewType = SchedulerViewType.Month;
     DxContextMenu? ContextMenu { get; set; }
@@ -168,6 +169,12 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
         }) ?? Task.FromResult(false));
     }
 
+    private void ShowAppointmentContextMenu2(MouseEventArgs e, DxSchedulerAppointmentItem appointment) {
+        _clickedRegion = "Appointment";
+        ContextMenuAppointment = appointment;
+        ContextMenu.ShowAsync(e);
+    }
+
     public async ValueTask DisposeAsync() {
         if (JsModule is not null)
             await JsModule.DisposeAsync();
@@ -179,8 +186,7 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
         switch (args.ItemInfo.Name)
         {
             case "Edit":
-                if (Scheduler is not null && SelectedAppointment is not null)
-                    await Scheduler.ShowAppointmentEditFormAsync(false, SelectedAppointment);
+                await Scheduler.ShowAppointmentEditFormAsync(false, ContextMenuAppointment);
                 break;
             case "GoToToday":
                 StartDate = DateTime.Today;

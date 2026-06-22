@@ -9,7 +9,8 @@ function getRegion(target, schedulerElement) {
     console.log('Context menu target:', target);
 
     if (target.closest('.dxbl-sc-apt'))
-        return { name: 'Appointment' };
+        return null;
+        //return { name: 'Appointment' };
 
     var start_date = get_date_milliseconds(target);
 
