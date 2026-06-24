@@ -29,7 +29,7 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
     <DxSchedulerMonthView ShowWorkDaysOnly="true" MonthCount="1">
         <HorizontalAppointmentTemplate>
             <div class="card @context.Label?.BackgroundCssClass" >
-                <div @oncontextmenu="((e) => ShowAppointmentContextMenu2(e, context.Appointment))">
+                <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
                     @context.Appointment.Subject
                 </div>
             </div>
@@ -169,10 +169,13 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
         }) ?? Task.FromResult(false));
     }
 
-    private void ShowAppointmentContextMenu2(MouseEventArgs e, DxSchedulerAppointmentItem appointment) {
+    private async Task ShowAppointmentContextMenu(MouseEventArgs e, DxSchedulerAppointmentItem appointment) {
+        if (ContextMenu is null || appointment is null)
+            return;
+
         _clickedRegion = "Appointment";
         ContextMenuAppointment = appointment;
-        ContextMenu.ShowAsync(e);
+        await ContextMenu.ShowAsync(e);
     }
 
     public async ValueTask DisposeAsync() {
@@ -182,10 +185,12 @@ Visible Resources count: @VisibleResourcesTyped.Count()<br />
     }
 
 
-    async void OnItemClick(ContextMenuItemClickEventArgs args) {
+    async Task OnItemClick(ContextMenuItemClickEventArgs args) {
         switch (args.ItemInfo.Name)
         {
             case "Edit":
+                if (Scheduler is null || ContextMenuAppointment is null)
+                    break;
                 await Scheduler.ShowAppointmentEditFormAsync(false, ContextMenuAppointment);
                 break;
             case "GoToToday":
