@@ -6,8 +6,7 @@ using scheduler_menu.Data;
 
 namespace scheduler_menu.Components.Pages;
 
-public partial class Index
-{
+public partial class Index {
     private DxSchedulerAppointmentItem? ContextMenuAppointment;
     private ElementReference SchedulerContainer;
     private DotNetObjectReference<Index>? DotNetRef;
@@ -18,8 +17,7 @@ public partial class Index
     private SchedulerViewType ActiveViewType = SchedulerViewType.Month;
     private const string OpenDayInDayViewText = "Open this day in Day View";
 
-    private string GoToTodayText => ActiveViewType switch
-    {
+    private string GoToTodayText => ActiveViewType switch {
         SchedulerViewType.Week or SchedulerViewType.WorkWeek => "Go to the current Week",
         SchedulerViewType.Month => "Go to the current Month",
         SchedulerViewType.Day or SchedulerViewType.Timeline => "Go to Today",
@@ -34,11 +32,9 @@ public partial class Index
     private int? ClickedId; // stores Id of an element to which we called context menu
     private DateTime? DayToGo; // Stores day where we should switch to
 
-    private DxSchedulerDataStorage DataStorage = new()
-    {
+    private DxSchedulerDataStorage DataStorage = new() {
         AppointmentsSource = RecurringAppointmentCollection.GetAppointments(),
-        AppointmentMappings = new DxSchedulerAppointmentMappings()
-        {
+        AppointmentMappings = new DxSchedulerAppointmentMappings() {
             Id = "AppointmentID",
             Type = "AppointmentType",
             Start = "StartDate",
@@ -53,8 +49,7 @@ public partial class Index
             ResourceId = "ResourceId"
         },
         ResourcesSource = ResourceCollection.GetResourcesForGrouping(),
-        ResourceMappings = new DxSchedulerResourceMappings()
-        {
+        ResourceMappings = new DxSchedulerResourceMappings() {
             Id = "Id",
             Caption = "Name",
             BackgroundCssClass = "BackgroundCss",
@@ -62,10 +57,8 @@ public partial class Index
         }
     };
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if(firstRender) {
             DotNetRef = DotNetObjectReference.Create(this);
             JsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/appointmentContextMenu.js");
             await JsModule.InvokeVoidAsync("setup", SchedulerContainer, DotNetRef);
@@ -73,16 +66,14 @@ public partial class Index
     }
 
     [JSInvokable]
-    public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region, int? id, long? startDate)
-    {
+    public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region, int? id, long? startDate) {
         ClickedRegion = region;
         ClickedId = id;
         DayToGo = startDate.HasValue ? DateTimeOffset.FromUnixTimeMilliseconds(startDate.Value).DateTime : null;
 
         StateHasChanged();
 
-        await (ContextMenu?.ShowAsync(new MouseEventArgs
-        {
+        await (ContextMenu?.ShowAsync(new MouseEventArgs {
             ClientX = clientX,
             ClientY = clientY,
             PageX = pageX,
@@ -90,9 +81,8 @@ public partial class Index
         }) ?? Task.FromResult(false));
     }
 
-    private async Task ShowAppointmentContextMenu(MouseEventArgs e, DxSchedulerAppointmentItem appointment)
-    {
-        if (ContextMenu is null || appointment is null)
+    private async Task ShowAppointmentContextMenu(MouseEventArgs e, DxSchedulerAppointmentItem appointment) {
+        if(ContextMenu is null || appointment is null)
             return;
 
         ClickedRegion = "Appointment";
@@ -100,20 +90,17 @@ public partial class Index
         await ContextMenu.ShowAsync(e);
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        if (JsModule is not null)
+    public async ValueTask DisposeAsync() {
+        if(JsModule is not null)
             await JsModule.DisposeAsync();
 
         DotNetRef?.Dispose();
     }
 
-    private async Task OnItemClick(ContextMenuItemClickEventArgs args)
-    {
-        switch (args.ItemInfo.Name)
-        {
+    private async Task OnItemClick(ContextMenuItemClickEventArgs args) {
+        switch(args.ItemInfo.Name) {
             case "Edit":
-                if (Scheduler is null || ContextMenuAppointment is null)
+                if(Scheduler is null || ContextMenuAppointment is null)
                     break;
 
                 await Scheduler.ShowAppointmentEditFormAsync(false, ContextMenuAppointment);
@@ -123,7 +110,7 @@ public partial class Index
                 break;
             case "SwitchToDayView":
                 ActiveViewType = SchedulerViewType.Day;
-                if (DayToGo is not null)
+                if(DayToGo is not null)
                     StartDate = DayToGo.Value;
                 break;
             case "SwitchToWeekView":
@@ -138,7 +125,7 @@ public partial class Index
             case "HideResource":
                 var resourceId = ClickedId;
                 var resourceToHide = VisibleResourcesTyped.FirstOrDefault(r => r.Id.Equals(resourceId));
-                if (resourceToHide is not null)
+                if(resourceToHide is not null)
                     VisibleResources = VisibleResourcesTyped.Where(r => !r.Equals(resourceToHide)).ToList();
                 break;
             case "ShowAllResources":
@@ -152,10 +139,8 @@ public partial class Index
         StateHasChanged();
     }
 
-    private void OnHtmlCellDecoration(SchedulerHtmlCellDecorationEventArgs e)
-    {
-        switch (e.CellType)
-        {
+    private void OnHtmlCellDecoration(SchedulerHtmlCellDecorationEventArgs e) {
+        switch(e.CellType) {
             case SchedulerCellType.DateHeader:
                 e.CssClass = "custom-date-header";
                 break;
