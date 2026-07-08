@@ -6,6 +6,14 @@
 
 <PageTitle>Welcome</PageTitle>
 
+@{
+    RenderFragment<dynamic> appointmentTemplate = context => @<div class="card @context.Label?.BackgroundCssClass">
+        <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
+            @context.Appointment.Subject
+        </div>
+    </div>;
+}
+
 <div @ref="SchedulerContainer">
 <DxScheduler @ref="Scheduler" @bind-StartDate="StartDate" @bind-ActiveViewType="ActiveViewType"
              DataStorage="@DataStorage"
@@ -16,62 +24,34 @@
 
     <DxSchedulerDayView DayCount="1" ShowWorkTimeOnly="@ShowWorkTimeOnly">
         <HorizontalAppointmentTemplate>
-            <div class="card @context.Label?.BackgroundCssClass" >
-                <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
-                    @context.Appointment.Subject
-                </div>
-            </div>
+            @appointmentTemplate(context)
         </HorizontalAppointmentTemplate>
         <VerticalAppointmentTemplate>
-            <div class="card @context.Label?.BackgroundCssClass" >
-                <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
-                    @context.Appointment.Subject
-                </div>
-            </div>
+            @appointmentTemplate(context)
         </VerticalAppointmentTemplate>
     </DxSchedulerDayView>
 
     <DxSchedulerWeekView ShowWorkTimeOnly="@ShowWorkTimeOnly">
         <HorizontalAppointmentTemplate>
-            <div class="card @context.Label?.BackgroundCssClass" >
-                <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
-                    @context.Appointment.Subject
-                </div>
-            </div>
+            @appointmentTemplate(context)
         </HorizontalAppointmentTemplate>
         <VerticalAppointmentTemplate>
-            <div class="card @context.Label?.BackgroundCssClass" >
-                <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
-                    @context.Appointment.Subject
-                </div>
-            </div>
+            @appointmentTemplate(context)
         </VerticalAppointmentTemplate>
     </DxSchedulerWeekView>
 
     <DxSchedulerWorkWeekView ShowWorkTimeOnly="@ShowWorkTimeOnly">
         <HorizontalAppointmentTemplate>
-            <div class="card @context.Label?.BackgroundCssClass" >
-                <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
-                    @context.Appointment.Subject
-                </div>
-            </div>
+            @appointmentTemplate(context)
         </HorizontalAppointmentTemplate>
         <VerticalAppointmentTemplate>
-            <div class="card @context.Label?.BackgroundCssClass" >
-                <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
-                    @context.Appointment.Subject
-                </div>
-            </div>
+            @appointmentTemplate(context)
         </VerticalAppointmentTemplate>
     </DxSchedulerWorkWeekView>
 
     <DxSchedulerMonthView ShowWorkDaysOnly="true" MonthCount="1">
         <HorizontalAppointmentTemplate>
-            <div class="card @context.Label?.BackgroundCssClass" >
-                <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
-                    @context.Appointment.Subject
-                </div>
-            </div>
+            @appointmentTemplate(context)
         </HorizontalAppointmentTemplate>
     </DxSchedulerMonthView>
 
@@ -81,11 +61,7 @@
             <DxSchedulerTimeScale Unit="@SchedulerTimeScaleUnit.Hour" UnitCount="2"></DxSchedulerTimeScale>
         </Scales>
         <HorizontalAppointmentTemplate>
-            <div class="card @context.Label?.BackgroundCssClass" >
-                <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
-                    @context.Appointment.Subject
-                </div>
-            </div>
+            @appointmentTemplate(context)
         </HorizontalAppointmentTemplate>
     </DxSchedulerTimelineView>
 
