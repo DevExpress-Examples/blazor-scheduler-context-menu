@@ -7,7 +7,7 @@
 <PageTitle>Welcome</PageTitle>
 
 @{
-    RenderFragment<dynamic> appointmentTemplate = context => @<div class="card @context.Label?.BackgroundCssClass">
+    RenderFragment<DxSchedulerAppointmentView> appointmentTemplate = context => @<div class="card @context.Label?.BackgroundCssClass">
         <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
             @context.Appointment.Subject
         </div>
