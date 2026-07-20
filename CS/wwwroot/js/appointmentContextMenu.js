@@ -6,8 +6,6 @@ function get_date_milliseconds(target) {
     return parseInt(target.getAttribute('data-start'), 10)
 }
 function getRegion(target, schedulerElement) {
-    console.log('Context menu target:', target);
-
     if (target.closest('.dxbl-sc-apt'))
         return null;
         //return { name: 'Appointment' };
@@ -49,7 +47,6 @@ export function setup(schedulerElement, dotNetRef) {
     schedulerElement.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         const region = getRegion(e.target, schedulerElement);
-        console.log('Context menu region:', region);
         if (!region) return;
         dotNetRef.invokeMethodAsync('ShowAppointmentContextMenu', e.clientX, e.clientY, e.pageX, e.pageY, region.name, region.id, region.start_date)
             .catch(err => console.error('[appointmentContextMenu] Failed to invoke .NET method:', err));
