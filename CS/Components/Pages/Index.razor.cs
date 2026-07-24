@@ -1,4 +1,5 @@
 ﻿using DevExpress.Blazor;
+using DevExpress.Images.Blazor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -16,6 +17,20 @@ public partial class Index {
     private bool ShowWorkTimeOnly = true;
     private SchedulerViewType ActiveViewType = SchedulerViewType.Month;
     private const string OpenDayInDayViewText = "Open this day in Day View";
+    private static readonly IReadOnlyDictionary<string, string> MenuIcons = new Dictionary<string, string> {
+        ["Edit"] = Icon.EditPen,
+        ["GoToToday"] = Icon.Home,
+        ["SwitchToDayView"] = Icon.Calendar,
+        ["SwitchToWeekView"] = Icon.Table,
+        ["SwitchToWorkWeekView"] = Icon.Calendar,
+        ["SwitchToMonthView"] = Icon.Grid,
+        ["SwitchToTimelineView"] = Icon.Table,
+        ["HideResource"] = Icon.ChevronLeft,
+        ["ShowAllResources"] = Icon.ChevronRight,
+        ["ToggleWorkTime"] = Icon.Clock
+    };
+
+    private static string GetMenuIcon(string actionName) => MenuIcons[actionName];
 
     private string GoToTodayText => ActiveViewType switch {
         SchedulerViewType.Week or SchedulerViewType.WorkWeek => "Go to the current Week",
