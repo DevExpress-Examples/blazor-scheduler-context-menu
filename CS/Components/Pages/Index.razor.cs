@@ -122,6 +122,9 @@ public partial class Index {
             case "SwitchToMonthView":
                 ActiveViewType = SchedulerViewType.Month;
                 break;
+            case "SwitchToTimelineView":
+                ActiveViewType = SchedulerViewType.Timeline;
+                break;
             case "HideResource":
                 var resourceId = ClickedId;
                 var resourceToHide = VisibleResourcesTyped.FirstOrDefault(r => r.Id.Equals(resourceId));

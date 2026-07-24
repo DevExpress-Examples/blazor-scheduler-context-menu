@@ -118,6 +118,9 @@
                 @if (ActiveViewType != SchedulerViewType.Month) {
                     <DxContextMenuItem Text="Switch to Month View" Name="SwitchToMonthView" IconUrl="@Icon.Grid"></DxContextMenuItem>
                 }
+                @if (ActiveViewType != SchedulerViewType.Timeline) {
+                    <DxContextMenuItem Text="Switch to Timeline View" Name="SwitchToTimelineView" IconUrl="@Icon.Table"></DxContextMenuItem>
+                }
                 <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday" IconUrl="@Icon.Home"></DxContextMenuItem>
                 break;
         }
