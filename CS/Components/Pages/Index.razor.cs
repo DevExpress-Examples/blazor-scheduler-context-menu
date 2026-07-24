@@ -19,15 +19,15 @@ public partial class Index {
     private const string OpenDayInDayViewText = "Open this day in Day View";
     private static readonly IReadOnlyDictionary<string, string> MenuIcons = new Dictionary<string, string> {
         ["Edit"] = Icon.EditPen,
-        ["GoToToday"] = Icon.Home,
-        ["SwitchToDayView"] = Icon.Calendar,
-        ["SwitchToWeekView"] = Icon.Table,
-        ["SwitchToWorkWeekView"] = Icon.Calendar,
-        ["SwitchToMonthView"] = Icon.Grid,
-        ["SwitchToTimelineView"] = Icon.Table,
-        ["HideResource"] = Icon.ChevronLeft,
-        ["ShowAllResources"] = Icon.ChevronRight,
-        ["ToggleWorkTime"] = Icon.Clock
+        ["GoToToday"] = Icon.CalendarGoToToday,
+        ["SwitchToDayView"] = Icon.CalendarExportDay,
+        ["SwitchToWeekView"] = Icon.CalendarExportWeek,
+        ["SwitchToWorkWeekView"] = Icon.CalendarExportWeek,
+        ["SwitchToMonthView"] = Icon.CalendarExportMonth,
+        ["SwitchToTimelineView"] = Icon.CalendarViewGantt,
+        ["HideResource"] = Icon.VisibilityEyeOff,
+        ["ShowAllResources"] = Icon.VisibilityEye,
+        ["ToggleWorkTime"] = Icon.ClockWorkTime
     };
 
     private static string GetMenuIcon(string actionName) => MenuIcons[actionName];
