@@ -73,52 +73,52 @@
         @switch (ClickedRegion)
         {
             case "Appointment":
-                <DxContextMenuItem Text="Edit" Name="Edit"></DxContextMenuItem>
+                <DxContextMenuItem Text="Edit" Name="Edit" IconUrl="@Icon.EditPen"></DxContextMenuItem>
                 break;
             case "All Day Area":
                 @if (ActiveViewType != SchedulerViewType.Day) {
-                    <DxContextMenuItem Text="@OpenDayInDayViewText" Name="SwitchToDayView"></DxContextMenuItem>
+                    <DxContextMenuItem Text="@OpenDayInDayViewText" Name="SwitchToDayView" IconUrl="@Icon.Calendar"></DxContextMenuItem>
                 }
-                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday"></DxContextMenuItem>
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday" IconUrl="@Icon.Home"></DxContextMenuItem>
                 break;
             case "Time Cell":
-                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday"></DxContextMenuItem>
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday" IconUrl="@Icon.Home"></DxContextMenuItem>
                 @if (ActiveViewType != SchedulerViewType.Day) {
-                    <DxContextMenuItem Text="@OpenDayInDayViewText" Name="SwitchToDayView"></DxContextMenuItem>
+                    <DxContextMenuItem Text="@OpenDayInDayViewText" Name="SwitchToDayView" IconUrl="@Icon.Calendar"></DxContextMenuItem>
                 }
                 break;
             case "Date Header":
                 @if (ActiveViewType != SchedulerViewType.Day) {
-                    <DxContextMenuItem Text="@OpenDayInDayViewText" Name="SwitchToDayView"></DxContextMenuItem>
+                    <DxContextMenuItem Text="@OpenDayInDayViewText" Name="SwitchToDayView" IconUrl="@Icon.Calendar"></DxContextMenuItem>
                 }
-                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday"></DxContextMenuItem>
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday" IconUrl="@Icon.Home"></DxContextMenuItem>
                 break;
             case "Day of Week Header":
-                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday"></DxContextMenuItem>
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday" IconUrl="@Icon.Home"></DxContextMenuItem>
                 break;
             case "Resource Header":
                 @if (VisibleResourcesTyped.Count() > 1) {
-                    <DxContextMenuItem Text="Hide Resource" Name="HideResource"></DxContextMenuItem>
+                    <DxContextMenuItem Text="Hide Resource" Name="HideResource" IconUrl="@Icon.ChevronLeft"></DxContextMenuItem>
                 }
-                <DxContextMenuItem Text="Show All Resources" Name="ShowAllResources"></DxContextMenuItem>
+                <DxContextMenuItem Text="Show All Resources" Name="ShowAllResources" IconUrl="@Icon.ChevronRight"></DxContextMenuItem>
                 break;
             case "Time Ruler":
-                <DxContextMenuItem Text="Toggle Work Time Only" Name="ToggleWorkTime"></DxContextMenuItem>
+                <DxContextMenuItem Text="Toggle Work Time Only" Name="ToggleWorkTime" IconUrl="@Icon.Clock"></DxContextMenuItem>
                 break;
             case "Toolbar":
                 @if (ActiveViewType != SchedulerViewType.Day) {
-                    <DxContextMenuItem Text="Switch to Day View" Name="SwitchToDayView"></DxContextMenuItem>
+                    <DxContextMenuItem Text="Switch to Day View" Name="SwitchToDayView" IconUrl="@Icon.Calendar"></DxContextMenuItem>
                 }
                 @if (ActiveViewType != SchedulerViewType.Week) {
-                    <DxContextMenuItem Text="Switch to Week View" Name="SwitchToWeekView"></DxContextMenuItem>
+                    <DxContextMenuItem Text="Switch to Week View" Name="SwitchToWeekView" IconUrl="@Icon.Table"></DxContextMenuItem>
                 }
                 @if (ActiveViewType != SchedulerViewType.WorkWeek) {
-                    <DxContextMenuItem Text="Switch to Work Week View" Name="SwitchToWorkWeekView"></DxContextMenuItem>
+                    <DxContextMenuItem Text="Switch to Work Week View" Name="SwitchToWorkWeekView" IconUrl="@Icon.Calendar"></DxContextMenuItem>
                 }
                 @if (ActiveViewType != SchedulerViewType.Month) {
-                    <DxContextMenuItem Text="Switch to Month View" Name="SwitchToMonthView"></DxContextMenuItem>
+                    <DxContextMenuItem Text="Switch to Month View" Name="SwitchToMonthView" IconUrl="@Icon.Grid"></DxContextMenuItem>
                 }
-                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday"></DxContextMenuItem>
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday" IconUrl="@Icon.Home"></DxContextMenuItem>
                 break;
         }
     </Items>

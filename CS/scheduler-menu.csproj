@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DevExpress.Blazor" Version="25.2.6" />
+    <PackageReference Include="DevExpress.Blazor" Version="26.1.3" />
+    <PackageReference Include="DevExpress.Images.Blazor" Version="26.1.3" />
   </ItemGroup>
 </Project>
