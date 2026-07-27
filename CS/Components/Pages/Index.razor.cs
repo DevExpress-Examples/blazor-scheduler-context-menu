@@ -1,4 +1,5 @@
 ﻿using DevExpress.Blazor;
+using DevExpress.Images.Blazor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -16,6 +17,20 @@ public partial class Index {
     private bool ShowWorkTimeOnly = true;
     private SchedulerViewType ActiveViewType = SchedulerViewType.Month;
     private const string OpenDayInDayViewText = "Open this day in Day View";
+    private static readonly IReadOnlyDictionary<string, string> MenuIcons = new Dictionary<string, string> {
+        ["Edit"] = Icon.EditPen,
+        ["GoToToday"] = Icon.CalendarGoToToday,
+        ["SwitchToDayView"] = Icon.CalendarExportDay,
+        ["SwitchToWeekView"] = Icon.CalendarExportWeek,
+        ["SwitchToWorkWeekView"] = Icon.CalendarExportWeek,
+        ["SwitchToMonthView"] = Icon.CalendarExportMonth,
+        ["SwitchToTimelineView"] = Icon.CalendarViewGantt,
+        ["HideResource"] = Icon.VisibilityEyeOff,
+        ["ShowAllResources"] = Icon.VisibilityEye,
+        ["ToggleWorkTime"] = Icon.ClockWorkTime
+    };
+
+    private static string GetMenuIcon(string actionName) => MenuIcons[actionName];
 
     private string GoToTodayText => ActiveViewType switch {
         SchedulerViewType.Week or SchedulerViewType.WorkWeek => "Go to the current Week",
@@ -121,6 +136,9 @@ public partial class Index {
                 break;
             case "SwitchToMonthView":
                 ActiveViewType = SchedulerViewType.Month;
+                break;
+            case "SwitchToTimelineView":
+                ActiveViewType = SchedulerViewType.Timeline;
                 break;
             case "HideResource":
                 var resourceId = ClickedId;
