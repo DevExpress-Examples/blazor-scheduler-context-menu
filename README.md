@@ -1,38 +1,218 @@
 <!-- default badges list -->
-![](https://img.shields.io/endpoint?url=https://codecentral.devexpress.com/api/v1/VersionRange/1223677914/26.1.3%2B)
-[![](https://img.shields.io/badge/Open_in_DevExpress_Support_Center-FF7200?style=flat-square&logo=DevExpress&logoColor=white)](https://supportcenter.devexpress.com/ticket/details/T1328040)
+![](https://img.shields.io/endpoint?url=https://codecentral.devexpress.com/api/v1/VersionRange/1211416592/25.2.6%2B)
+[![](https://img.shields.io/badge/Open_in_DevExpress_Support_Center-FF7200?style=flat-square&logo=DevExpress&logoColor=white)](https://supportcenter.devexpress.com/ticket/details/T1326784)
 [![](https://img.shields.io/badge/📖_How_to_use_DevExpress_Examples-e9f6fc?style=flat-square)](https://docs.devexpress.com/GeneralInformation/403183)
 [![](https://img.shields.io/badge/💬_Leave_Feedback-feecdd?style=flat-square)](#does-this-example-address-your-development-requirementsobjectives)
 <!-- default badges end -->
-# Product/Platform - Task
+# Blazor Scheduler — Custom Context Menu for Scheduler Regions
 
-This is the repository template for creating new examples. Describe the solved task here.
+This example demonstrates how to add a DevExpress Blazor [Context Menu](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenu) to a DevExpress Blazor [Scheduler](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxScheduler). When users right-click within a Scheduler region, the application identifies the clicked region and displays a context menu with relevant commands.
 
-Put a screenshot that illustrates the result here.
+| Scheduler Region | Menu Commands | Appearance |
+|---|---|
+| `Appointment` | `Edit` | IMAGE |
+| `All Day Area` | `SwitchToDayView` *(only if `ActiveViewType != Day`)* <br/> `GoToToday` | IMAGE | 
+| `Time Cell` | `GoToToday` <br/> `SwitchToDayView` *(only if `ActiveViewType != Day`)* | IMAGE |
+| `Date Header` | `SwitchToDayView` *(only if `ActiveViewType != Day`)* <br/> `GoToToday` |  IMAGE |
+| `Day of Week Header` | `GoToToday` |  IMAGE |
+| `Resource Header` | `HideResource` *(only if visible resource count > 1)* <br/> `ShowAllResources` | IMAGE |
+| `Time Ruler` | `ToggleWorkTime` | IMAGE |
+| `Toolbar` | `SwitchToDayView` *(if not `Day`)* <br/> `SwitchToWeekView` *(if not `Week`)* <br/> `SwitchToWorkWeekView` *(if not `WorkWeek`)* <br/> `SwitchToMonthView` *(if not `Month`)* <br/> `SwitchToTimelineView` *(if not `Timeline`)* <br/> `GoToToday` | IMAGE |
 
-Then, add implementation details (steps, code snippets, and other technical information in a free form), or add a link to an existing document with implementation details. 
+## Implementation Details
+
+This section introduces key code blocks used in the example.
+
+See [Index.razor](CS/Components/Pages/Index.razor).
+
+### Detect a Clicked Region and Show the Menu
+
+#### Appointments
+
+To detect a clicked appointment, `Index.razor` defines a shared [appointmentTemplate](CS/Components/Pages/Index.razor#L9) object. The template is reused in all Scheduler views (Day, Week, Work Week, Month, and Timeline), the same right-click behavior is available everywhere.
+
+Inside the template, the `context` parameter provides access to the current appointment via `context.Appointment`. The template wires the `@oncontextmenu` event and calls [ShowAppointmentContextMenu(e, context.Appointment)](CS/Components/Pages/Index.razor.cs#L99).
+
+```Index.razor
+@{
+    RenderFragment<DxSchedulerAppointmentView> appointmentTemplate = context => @<div class="card @context.Label?.BackgroundCssClass">
+        <div @oncontextmenu="((e) => ShowAppointmentContextMenu(e, context.Appointment))">
+            @context.Appointment.Subject
+        </div>
+    </div>;
+}
+```
+
+```Index.razor.cs
+private async Task ShowAppointmentContextMenu(MouseEventArgs e, DxSchedulerAppointmentItem appointment) {
+    if(ContextMenu is null || appointment is null)
+        return;
+
+    ClickedRegion = "Appointment";
+    ContextMenuAppointment = appointment;
+    await ContextMenu.ShowAsync(e);
+}
+
+```
+
+#### Other Regions
+
+The project uses the [appointmentContextMenu.js](CS/wwwroot/js/appointmentContextMenu.js) module to handle different Scheduler regions: date header, time cell, resource header, all-day cell, and day-of-week header. The module handles the browser `contextmenu` event, determines a region by a CSS class, and calls back into .NET to show the appropriate menu.
+
+To apply custom CSS classes to the Scheduler regions, the [OnHtmlCellDecoration](CS/Components/Pages/Index.razor.cs#L160) event handler is used.
+
+```Index.razor.cs
+private void OnHtmlCellDecoration(SchedulerHtmlCellDecorationEventArgs e) {
+    switch(e.CellType) {
+        case SchedulerCellType.DateHeader:
+            e.CssClass = "custom-date-header";
+            break;
+        case SchedulerCellType.TimeCell:
+            e.CssClass = "custom-time-cell";
+            break;
+        case SchedulerCellType.ResourceHeader:
+            e.CssClass = "custom-resource-header-" + e.Resources.FirstOrDefault()?.Id;
+            break;
+        case SchedulerCellType.AllDayTimeCell:
+            e.CssClass = "custom-all-date-time-cell";
+            break;
+        case SchedulerCellType.DayOfWeekHeader:
+            e.CssClass = "custom-day-of-week-header";
+            break;
+        case SchedulerCellType.None:
+            e.CssClass = "custom-none";
+            break;
+    }
+}
+```
+
+The [appointmentContextMenu.js](CS/wwwroot/js/appointmentContextMenu.js) module inspects an event target, matches region classes, and reports a region name (along with an optional resource's `id` and cell's `start_date`) back to the Scheduler component:
+
+```appointmentContextMenu.js
+export function setup(schedulerElement, dotNetRef) {
+    schedulerElement.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const region = getRegion(e.target, schedulerElement);
+        if (!region) return;
+        dotNetRef.invokeMethodAsync('ShowAppointmentContextMenu',
+            e.clientX, e.clientY, e.pageX, e.pageY, region.name, region.id, region.start_date);
+    });
+}
+```
+
+When a region is detected, the module calls the [[JSInvokable] ShowAppointmentContextMenu](CS/Components/Pages/Index.razor.cs#L83) method that sets the `ClickedRegion` value and shows the menu at the cursor position.
+
+```Index.razor.cs
+[JSInvokable]
+public async Task ShowAppointmentContextMenu(double clientX, double clientY, double pageX, double pageY, string region, int? id, long? startDate) {
+    ClickedRegion = region;
+    ClickedId = id;
+    DayToGo = startDate.HasValue ? DateTimeOffset.FromUnixTimeMilliseconds(startDate.Value).DateTime : null;
+
+    StateHasChanged();
+
+    await (ContextMenu?.ShowAsync(new MouseEventArgs {
+        ClientX = clientX,
+        ClientY = clientY,
+        PageX = pageX,
+        PageY = pageY
+    }) ?? Task.FromResult(false));
+}
+```
+
+> [!NOTE]
+> The [appointmentContextMenu.js](CS/wwwroot/js/appointmentContextMenu.js) module relies on DevExpress internal CSS classes (`dxbl-sc-*`, `dxbl-v-*`). They may change between versions. Review and update them when you upgrade DevExpress.Blazor.
+
+### Region-Aware Menu Commands
+
+[Index.razor](CS/Components/Pages/Index.razor#L83) declares a single [DxContextMenu](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenu) that is used for all regions. Its items are generated dynamically based on the `ClickedRegion` value. A `switch` block renders only the [DxContextMenuItem](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenuItem) commands that make sense for the clicked region and the current view. For example, "Open this day in Day View" is hidden when the Day View is active.
+
+```Index.razor
+<DxContextMenu @ref="@ContextMenu" ItemClick="@OnItemClick">
+    <Items>
+        <DxContextMenuItem Text="@ClickedRegion" Enabled="false" CssClass="fw-bold"></DxContextMenuItem>
+        @switch (ClickedRegion)
+        {
+            case "Appointment":
+                <DxContextMenuItem Text="Edit" Name="Edit" IconUrl="@GetMenuIcon("Edit")"></DxContextMenuItem>
+                break;
+            case "All Day Area":
+                @if (ActiveViewType != SchedulerViewType.Day) {
+                    <DxContextMenuItem Text="@OpenDayInDayViewText" Name="SwitchToDayView" IconUrl="@GetMenuIcon("SwitchToDayView")"></DxContextMenuItem>
+                }
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday" IconUrl="@GetMenuIcon("GoToToday")"></DxContextMenuItem>
+                break;
+            case "Time Cell":
+                <DxContextMenuItem Text="@GoToTodayText" Name="GoToToday" IconUrl="@GetMenuIcon("GoToToday")"></DxContextMenuItem>
+                @if (ActiveViewType != SchedulerViewType.Day) {
+                    <DxContextMenuItem Text="@OpenDayInDayViewText" Name="SwitchToDayView" IconUrl="@GetMenuIcon("SwitchToDayView")"></DxContextMenuItem>
+                }
+                break;
+            // other regions
+        }
+    </Items>
+</DxContextMenu>
+```
+
+### Handle Menu Commands
+
+The [OnItemClick](CS/Components/Pages/Index.razor.cs#115) handler reacts to each command by its `Name`:
+
+- **Edit** — opens the appointment edit form using `ShowAppointmentEditFormAsync`.
+- **SwitchToDayView / SwitchToWeekView / SwitchToWorkWeekView / SwitchToMonthView** — changes `ActiveViewType` and navigates to the clicked day when available.
+- **GoToToday** — resets `StartDate` to `DateTime.Today`.
+- **HideResource / ShowAllResources** — updates the `VisibleResources` collection bound to `VisibleResourcesDataSource`.
+- **ToggleWorkTime** — toggles the `ShowWorkTimeOnly` option across the views.
+
+```Index.razor.cs
+private async Task OnItemClick(ContextMenuItemClickEventArgs args) {
+    switch(args.ItemInfo.Name) {
+        case "Edit":
+            if(Scheduler is null || ContextMenuAppointment is null)
+                break;
+
+            await Scheduler.ShowAppointmentEditFormAsync(false, ContextMenuAppointment);
+            break;
+        case "GoToToday":
+            StartDate = DateTime.Today;
+            break;
+        case "SwitchToDayView":
+            ActiveViewType = SchedulerViewType.Day;
+            if(DayToGo is not null)
+                StartDate = DayToGo.Value;
+            break;
+        // other commands
+    }
+
+    StateHasChanged();
+}
+```
 
 ## Files to Review
 
-- link.cs (VB: link.vb)
-- link.js
-- ...
+- [Index.razor](CS/Components/Pages/Index.razor)
+- [Index.razor.cs](CS/Components/Pages/Index.razor.cs)
+- [Index.razor.css](CS/Components/Pages/Index.razor.css)
+- [appointmentContextMenu.js](CS/wwwroot/js/appointmentContextMenu.js)
+- [Program.cs](CS/Program.cs)
+- [RecurringAppointmentCollection.cs](CS/Data/RecurringAppointmentCollection.cs)
+- [ResourceCollection.cs](CS/Data/ResourceCollection.cs)
 
 ## Documentation
 
-- link
-- link
-- ...
+- [DevExpress Blazor Scheduler](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxScheduler)
+- [DevExpress Blazor Scheduler - Appointments](https://docs.devexpress.com/Blazor/403663/scheduler/appointments)
+- [DevExpress Blazor Context Menu](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenu)
+- [Call JavaScript functions from .NET methods (Microsoft)](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/call-javascript-from-dotnet)
 
-## More Examples
+## Related Examples
 
-- link
-- link
-- ...
+- [Blazor Scheduler - Get Started](https://github.com/DevExpress-Examples/blazor-scheduler-get-started)
+
 <!-- feedback -->
 ## Does This Example Address Your Development Requirements/Objectives?
 
-[<img src="https://www.devexpress.com/support/examples/i/yes-button.svg"/>](https://www.devexpress.com/support/examples/survey.xml?utm_source=github&utm_campaign=draft-Devexpress-Blazor-Scheduler-Context-Menu&~~~was_helpful=yes) [<img src="https://www.devexpress.com/support/examples/i/no-button.svg"/>](https://www.devexpress.com/support/examples/survey.xml?utm_source=github&utm_campaign=draft-Devexpress-Blazor-Scheduler-Context-Menu&~~~was_helpful=no)
+[<img src="https://www.devexpress.com/support/examples/i/yes-button.svg"/>](https://www.devexpress.com/support/examples/survey.xml?utm_source=github&utm_campaign=blazor-scheduler-context-menu&~~~was_helpful=yes) [<img src="https://www.devexpress.com/support/examples/i/no-button.svg"/>](https://www.devexpress.com/support/examples/survey.xml?utm_source=github&utm_campaign=blazor-scheduler-context-menu&~~~was_helpful=no)
 
 (you will be redirected to DevExpress.com to submit your response)
 <!-- feedback end -->
