@@ -31,6 +31,10 @@ The following image shows the resource header menu:
 
 ### Detect a Clicked Region and Show the Menu
 
+The application uses a combination of Blazor and JavaScript to detect the clicked region and show the context menu. For [appointments](#appointments), we use a shared template to identify the clicked appointment. For [other regions and elements](#other-regions), we use a JavaScript module to handle the `contextmenu` event and call back into .NET to show the menu.
+
+If you need to add a context menu to an element that supports templates, you can use the same approach as for appointments. If you need to add a context menu to an element that does not support templates, you can use the same approach as this application uses for other regions.
+
 #### Appointments
 
 To detect a clicked appointment, `Index.razor` defines a shared [appointmentTemplate](CS/Components/Pages/Index.razor#L9) object. The template is reused in all Scheduler views (Day, Week, Work Week, Month, and Timeline), the same right-click behavior is available everywhere.
@@ -90,7 +94,7 @@ private void OnHtmlCellDecoration(SchedulerHtmlCellDecorationEventArgs e) {
 }
 ```
 
-The [appointmentContextMenu.js](CS/wwwroot/js/appointmentContextMenu.js) module inspects an event target, matches region classes, and reports a region name (along with an optional resource's `id` and cell's `start_date`) back to the Scheduler component:
+The [getRegion](CS/wwwroot/js/appointmentContextMenu.js) method in the [appointmentContextMenu.js](CS/wwwroot/js/appointmentContextMenu.js) module inspects an event target, matches region classes, and reports a region name (along with an optional resource's `id` and cell's `start_date`) back to the Scheduler component:
 
 ```appointmentContextMenu.js
 export function setup(schedulerElement, dotNetRef) {
