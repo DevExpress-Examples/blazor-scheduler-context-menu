@@ -6,24 +6,30 @@
 <!-- default badges end -->
 # Blazor Scheduler — Custom Context Menu for Scheduler Regions
 
-This example demonstrates how to add a DevExpress Blazor [Context Menu](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenu) to a DevExpress Blazor [Scheduler](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxScheduler). When users right-click within a Scheduler region, the application identifies the clicked region and displays a context menu with relevant commands.
+This example demonstrates how to add a DevExpress Blazor [Context Menu](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenu) to a DevExpress Blazor [Scheduler](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxScheduler). When users right-click within any Scheduler region, the application detects the clicked region and displays a context menu with relevant commands.
 
-| Scheduler Region | Menu Commands | Appearance |
+| Scheduler Region | Menu Commands |
 |---|---|
-| `Appointment` | `Edit` | IMAGE |
-| `All Day Area` | `SwitchToDayView` *(only if `ActiveViewType != Day`)* <br/> `GoToToday` | IMAGE | 
-| `Time Cell` | `GoToToday` <br/> `SwitchToDayView` *(only if `ActiveViewType != Day`)* | IMAGE |
-| `Date Header` | `SwitchToDayView` *(only if `ActiveViewType != Day`)* <br/> `GoToToday` |  IMAGE |
-| `Day of Week Header` | `GoToToday` |  IMAGE |
-| `Resource Header` | `HideResource` *(only if visible resource count > 1)* <br/> `ShowAllResources` | IMAGE |
-| `Time Ruler` | `ToggleWorkTime` | IMAGE |
-| `Toolbar` | `SwitchToDayView` *(if not `Day`)* <br/> `SwitchToWeekView` *(if not `Week`)* <br/> `SwitchToWorkWeekView` *(if not `WorkWeek`)* <br/> `SwitchToMonthView` *(if not `Month`)* <br/> `SwitchToTimelineView` *(if not `Timeline`)* <br/> `GoToToday` | IMAGE |
+| Appointment | Edit | 
+| All Day Area | Switch To Day View *(only if `ActiveViewType != Day`)* <br/> GoToToday |
+| Time Cell | Go To Today <br/> Switch To Day View *(only if `ActiveViewType != Day`)* | 
+| Date Header | Switch To Day View *(only if `ActiveViewType != Day`)* <br/> Go To Today |
+| Day of Week Header | Go To Today | 
+| Resource Header | Hide Resource *(only if visible resource count > 1)* <br/> Show All Resources | 
+| Time Ruler | Toggle Work Time | 
+| Toolbar | Switch To Day View *(if not `Day`)* <br/> Switch To Week View *(if not `Week`)* <br/> Switch To Work Week View *(if not `WorkWeek`)* <br/> Switch To Month View *(if not `Month`)* <br/> Switch To Timeline View *(if not `Timeline`)* <br/> Go To Today | 
+
+Toolbar Menu: 
+
+![Toolbar Context Menu](toolbar-menu.png)
+
+Resource Header Menu:
+
+![Resource Header Context Menu](resource-header-menu.png)
 
 ## Implementation Details
 
 This section introduces key code blocks used in the example.
-
-See [Index.razor](CS/Components/Pages/Index.razor).
 
 ### Detect a Clicked Region and Show the Menu
 
