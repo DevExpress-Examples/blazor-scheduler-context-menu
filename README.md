@@ -19,17 +19,15 @@ This example demonstrates how to add a DevExpress Blazor [Context Menu](https://
 | Time Ruler | Toggle Work Time | 
 | Toolbar | Switch To Day View *(if not `Day`)* <br/> Switch To Week View *(if not `Week`)* <br/> Switch To Work Week View *(if not `WorkWeek`)* <br/> Switch To Month View *(if not `Month`)* <br/> Switch To Timeline View *(if not `Timeline`)* <br/> Go To Today | 
 
-Toolbar Menu: 
+The following image shows the toolbar menu:
 
 ![Toolbar Context Menu](toolbar-menu.png)
 
-Resource Header Menu:
+The following image shows the resource header menu:
 
 ![Resource Header Context Menu](resource-header-menu.png)
 
 ## Implementation Details
-
-This section introduces key code blocks used in the example.
 
 ### Detect a Clicked Region and Show the Menu
 
@@ -164,11 +162,11 @@ public async Task ShowAppointmentContextMenu(double clientX, double clientY, dou
 
 The [OnItemClick](CS/Components/Pages/Index.razor.cs#115) handler reacts to each command by its `Name`:
 
-- **Edit** — opens the appointment edit form using `ShowAppointmentEditFormAsync`.
-- **SwitchToDayView / SwitchToWeekView / SwitchToWorkWeekView / SwitchToMonthView** — changes `ActiveViewType` and navigates to the clicked day when available.
-- **GoToToday** — resets `StartDate` to `DateTime.Today`.
-- **HideResource / ShowAllResources** — updates the `VisibleResources` collection bound to `VisibleResourcesDataSource`.
-- **ToggleWorkTime** — toggles the `ShowWorkTimeOnly` option across the views.
+- `Edit` — opens the appointment edit form using `ShowAppointmentEditFormAsync`.
+- `SwitchToDayView` / `SwitchToWeekView` / `SwitchToWorkWeekView` / `SwitchToMonthView` — changes `ActiveViewType` and navigates to the clicked day when available.
+- `GoToToday` — resets `StartDate` to `DateTime.Today`.
+- `HideResource` / `ShowAllResources` — updates the `VisibleResources` collection bound to `VisibleResourcesDataSource`.
+- `ToggleWorkTime` — toggles the `ShowWorkTimeOnly` option across the views.
 
 ```Index.razor.cs
 private async Task OnItemClick(ContextMenuItemClickEventArgs args) {
