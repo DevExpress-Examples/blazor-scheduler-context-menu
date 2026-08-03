@@ -31,7 +31,7 @@ The following image shows the resource header menu:
 
 ### Detect a Clicked Region and Show the Menu
 
-The application uses a combination of Blazor and JavaScript to detect the clicked region and show the context menu. For [appointments](#appointments), we use a shared template to identify the clicked appointment. For [other regions and elements](#other-regions), we use a JavaScript module to handle the `contextmenu` event and call back into .NET to show the menu.
+The application uses a combination of Blazor and JavaScript to detect the clicked region and show the context menu. For [appointments](#appointments), a shared appointment template identifies the clicked appointment. For [other regions and elements](#other-regions), a JavaScript module handles the `contextmenu` event and calls back into .NET to show the menu.
 
 If you need to add a context menu to an element that supports templates, you can use the same approach as for appointments. If you need to add a context menu to an element that does not support templates, you can use the same approach as this application uses for other regions.
 
@@ -162,7 +162,7 @@ public async Task ShowAppointmentContextMenu(double clientX, double clientY, dou
 </DxContextMenu>
 ```
 
-### Handle Menu Commands
+### Handle Context Menu Clicks
 
 The [OnItemClick](CS/Components/Pages/Index.razor.cs#115) event handler processes item clicks based on command `Name` value:
 
