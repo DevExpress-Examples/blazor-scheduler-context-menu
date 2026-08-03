@@ -11,7 +11,7 @@ This example adds a DevExpress Blazor [Context Menu](https://docs.devexpress.com
 | Scheduler Region | Context Menu Commands |
 |---|---|
 | Appointment | Edit | 
-| All Day Area | Switch To Day View *(only if `ActiveViewType != Day`)* <br/> GoToToday |
+| All Day Area | Switch To Day View *(only if `ActiveViewType != Day`)* <br/> Switch To Today |
 | Time Cell | Switch To Today <br/> Switch To Day View *(only if `ActiveViewType != Day`)* | 
 | Date Header | Switch To Day View *(only if `ActiveViewType != Day`)* <br/> Switch To Today |
 | Day of Week Header | Switch To Today | 
