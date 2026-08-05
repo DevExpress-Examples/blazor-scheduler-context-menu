@@ -33,9 +33,9 @@ public partial class Index {
     private static string GetMenuIcon(string actionName) => MenuIcons[actionName];
 
     private string GoToTodayText => ActiveViewType switch {
-        SchedulerViewType.Week or SchedulerViewType.WorkWeek => "Go to the current Week",
-        SchedulerViewType.Month => "Go to the current Month",
-        SchedulerViewType.Day or SchedulerViewType.Timeline => "Go to Today",
+        SchedulerViewType.Week or SchedulerViewType.WorkWeek => "Switch to Current Week",
+        SchedulerViewType.Month => "Switch to Current Month",
+        SchedulerViewType.Day or SchedulerViewType.Timeline => "Switch to Today",
         _ => "Error: Unknown view type"
     };
 
