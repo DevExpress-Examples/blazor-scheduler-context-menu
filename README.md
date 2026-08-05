@@ -6,40 +6,40 @@
 <!-- default badges end -->
 # Blazor Scheduler — Custom Context Menu for Scheduler Regions
 
-This example adds a DevExpress Blazor [Context Menu](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenu) to a DevExpress Blazor [Scheduler](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxScheduler). When users right-click within any Scheduler region, the application detects the clicked region and displays a context menu with relevant commands.
+This example adds a DevExpress Blazor [Context Menu](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenu) to the DevExpress Blazor [Scheduler](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxScheduler). When users right-click within any Scheduler region, the application detects the clicked region and displays a context menu with relevant commands.
 
 | Scheduler Region | Context Menu Commands |
 |---|---|
 | Appointment | Edit | 
-| All Day Area | Switch To Day View *(only if `ActiveViewType != Day`)* <br/> Switch To Today |
-| Time Cell | Switch To Today <br/> Switch To Day View *(only if `ActiveViewType != Day`)* | 
-| Date Header | Switch To Day View *(only if `ActiveViewType != Day`)* <br/> Switch To Today |
-| Day of Week Header | Switch To Today | 
+| All Day Area | Switch to Day View *(only if `ActiveViewType != Day`)* <br/> Switch to Today |
+| Time Cell | Switch to Today <br/> Switch to Day View *(only if `ActiveViewType != Day`)* | 
+| Date Header | Switch to Day View *(only if `ActiveViewType != Day`)* <br/> Switch to Today |
+| Day of Week Header | Switch to Today | 
 | Resource Header | Hide Resource *(only if visible resource count > 1)* <br/> Show All Resources | 
 | Time Ruler | Toggle Work Time | 
-| Toolbar | Switch To Day View *(if not `Day`)* <br/> Switch To Week View *(if not `Week`)* <br/> Switch To Work Week View *(if not `WorkWeek`)* <br/> Switch To Month View *(if not `Month`)* <br/> Switch To Timeline View *(if not `Timeline`)* <br/> Switch To Today | 
+| Toolbar | Switch to Day View *(if not `Day`)* <br/> Switch to Week View *(if not `Week`)* <br/> Switch to Work Week View *(if not `WorkWeek`)* <br/> Switch to Month View *(if not `Month`)* <br/> Switch to Timeline View *(if not `Timeline`)* <br/> Switch to Today | 
 
-The following image shows the toolbar menu:
+Toolbar menu:
 
 ![Toolbar Context Menu](toolbar-menu.png)
 
-The following image shows the resource header menu:
+Resource header menu:
 
 ![Resource Header Context Menu](resource-header-menu.png)
 
 ## Implementation Details
 
-### Detect a Clicked Region and Show the Menu
+### Detect a Clicked Region and Display the Menu
 
-The application uses a combination of Blazor and JavaScript to detect the clicked region and show the context menu. For [appointments](#appointments), a shared appointment template identifies the clicked appointment. For [other regions and elements](#other-regions), a JavaScript module handles the `contextmenu` event and calls back into .NET to show the menu.
+The application uses a combination of Blazor and JavaScript to detect the clicked region and display the context menu. For [appointments](#appointments), a shared appointment template identifies the clicked appointment. For [other regions and elements](#other-regions), a JavaScript module handles the `contextmenu` event and calls back into .NET to display the menu.
 
-If you need to add a context menu to an element that supports templates, you can use the same approach as for appointments. If you need to add a context menu to an element that does not support templates, you can use the same approach as this application uses for other regions.
+If you need to add a context menu to an element that supports templates, you can use the approach used for appointments. If you need to add a context menu to an element that does not support templates, you can use the same approach as this application uses for other regions.
 
 #### Appointments
 
-To detect a clicked appointment, `Index.razor` defines a shared [appointmentTemplate](CS/Components/Pages/Index.razor#L9) object. The template is reused in all Scheduler views (Day, Week, Work Week, Month, and Timeline).
+To detect a clicked appointment, `Index.razor` defines a shared [appointmentTemplate](CS/Components/Pages/Index.razor#L9) object. The template is reused across all Scheduler views (Day, Week, Work Week, Month, and Timeline).
 
-The template's `context` parameter contains the `Appointment` property that gets the current appointment. The template handles right-clicks on the appointment (`@oncontextmenu` event) and calls [ShowAppointmentContextMenu(e, context.Appointment)](CS/Components/Pages/Index.razor.cs#L99).
+The template's `context` parameter contains an `Appointment` property that gets the current appointment. The template handles right-clicks on the appointment (`@oncontextmenu` event) and calls [ShowAppointmentContextMenu(e, context.Appointment)](CS/Components/Pages/Index.razor.cs#L99).
 
 
 **Index.razor**
@@ -68,9 +68,9 @@ private async Task ShowAppointmentContextMenu(MouseEventArgs e, DxSchedulerAppoi
 
 #### Other Regions
 
-The example relies on the [appointmentContextMenu.js](CS/wwwroot/js/appointmentContextMenu.js) module to process the following Scheduler regions: date header, time cell, resource header, all-day cell, and day-of-week header. The module handles the browser's `contextmenu` event, determines a region by a CSS class, and shows the appropriate menu on the .NET side of the application.
+The example relies on the [appointmentContextMenu.js](CS/wwwroot/js/appointmentContextMenu.js) module to process the following Scheduler regions: date header, time cell, resource header, all-day cell, and day-of-week header. The module handles the browser's `contextmenu` event, determines region by a CSS class, and displays the appropriate menu on the .NET side of the application.
 
-To apply custom CSS classes to the Scheduler regions, the [OnHtmlCellDecoration](CS/Components/Pages/Index.razor.cs#L160) event handler is used.
+The [OnHtmlCellDecoration](CS/Components/Pages/Index.razor.cs#L160) event handler is used to apply custom CSS classes to Scheduler regions.
 
 **Index.razor.cs**
 ```csharp
@@ -98,7 +98,7 @@ private void OnHtmlCellDecoration(SchedulerHtmlCellDecorationEventArgs e) {
 }
 ```
 
-The [getRegion](CS/wwwroot/js/appointmentContextMenu.js) method determines an event target, matches region CSS classes, and passes a region name (along with an optional resource `id` and cell `start_date`) back to the Scheduler component:
+The [getRegion](CS/wwwroot/js/appointmentContextMenu.js) method determines an event target, matches region CSS classes, and passes region name (along with an optional resource `id` and cell `start_date`) back to the Scheduler component:
 
 **appointmentContextMenu.js**
 ```js
@@ -113,7 +113,7 @@ export function setup(schedulerElement, dotNetRef) {
 }
 ```
 
-When a region is detected, the module calls the [[JSInvokable] ShowAppointmentContextMenu](CS/Components/Pages/Index.razor.cs#L83) method that sets the `ClickedRegion` value and shows the menu at the cursor position.
+When a region is detected, the module calls the [[JSInvokable] ShowAppointmentContextMenu](CS/Components/Pages/Index.razor.cs#L83) method which then sets the `ClickedRegion` value and displays the menu at the cursor position.
 
 **Index.razor.cs**
 ```csharp
@@ -135,11 +135,11 @@ public async Task ShowAppointmentContextMenu(double clientX, double clientY, dou
 ```
 
 > [!NOTE]
-> The [appointmentContextMenu.js](CS/wwwroot/js/appointmentContextMenu.js) module relies on DevExpress internal CSS classes (`dxbl-sc-*`, `dxbl-v-*`). They may change between versions. Review and update them when you upgrade DevExpress.Blazor.
+> The [appointmentContextMenu.js](CS/wwwroot/js/appointmentContextMenu.js) module relies on DevExpress internal CSS classes (`dxbl-sc-*`, `dxbl-v-*`). These classes may change between release cycles. Review and update them as necessary when/if you upgrade DevExpress-powered Blazor app.
 
 ### Region-Aware Menu Commands
 
-[Index.razor](CS/Components/Pages/Index.razor#L83) declares a single [DxContextMenu](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenu) used for all regions. Its items are generated dynamically based on the `ClickedRegion` value. A `switch` block renders [DxContextMenuItem](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenuItem) items applicable to a clicked region and a current view. For example, "Open this day in Day View" is hidden when the Day View is active.
+[Index.razor](CS/Components/Pages/Index.razor#L83) declares a single [DxContextMenu](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenu) used for all regions. Its items are generated dynamically based on the `ClickedRegion` value. A `switch` block renders [DxContextMenuItem](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenuItem) items applicable to a clicked region and the current view. For example, "Open this day in Day View" is hidden when the Day View is active.
 
 **Index.razor**
 ```razor
@@ -177,7 +177,7 @@ The [OnItemClick](CS/Components/Pages/Index.razor.cs#115) event handler processe
 - `SwitchToDayView` / `SwitchToWeekView` / `SwitchToWorkWeekView` / `SwitchToMonthView` — changes `ActiveViewType` and navigates to the clicked day (if available).
 - `GoToToday` — resets `StartDate` to `DateTime.Today`.
 - `HideResource` / `ShowAllResources` — updates the `VisibleResources` collection bound to `VisibleResourcesDataSource`.
-- `ToggleWorkTime` — toggles the `ShowWorkTimeOnly` option across the views.
+- `ToggleWorkTime` — toggles the `ShowWorkTimeOnly` option across views.
 
 **Index.razor.cs**
 ```csharp
