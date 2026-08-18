@@ -217,13 +217,9 @@ private async Task OnItemClick(ContextMenuItemClickEventArgs args) {
 ## Documentation
 
 - [DevExpress Blazor Scheduler](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxScheduler)
-- [DevExpress Blazor Scheduler - Appointments](https://docs.devexpress.com/Blazor/403663/scheduler/appointments)
+- [DevExpress Blazor Scheduler - Appointments](https://docs.devexpress.com/Blazor/404770/components/scheduler/appointments)
 - [DevExpress Blazor Context Menu](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxContextMenu)
 - [Call JavaScript functions from .NET methods (Microsoft)](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/call-javascript-from-dotnet)
-
-## Related Examples
-
-- [Blazor Scheduler - Get Started](https://github.com/DevExpress-Examples/blazor-scheduler-get-started)
 
 <!-- feedback -->
 ## Does This Example Address Your Development Requirements/Objectives?
